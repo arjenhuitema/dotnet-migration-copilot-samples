@@ -1,0 +1,79 @@
+{
+  "tasks": [
+    {
+      "id": "001-upgrade-dotnet-version",
+      "type": "upgrade",
+      "description": "Upgrade .NET Framework 4.8 to .NET 8.0",
+      "requirements": "Upgrade the application from .NET Framework 4.8 to .NET 8.0 LTS. This includes migrating from ASP.NET MVC 5 to ASP.NET Core MVC, converting the project file from legacy .csproj to SDK-style format, replacing packages.config with PackageReference, updating Global.asax startup to Program.cs/Startup.cs, migrating Web.config settings to appsettings.json, and updating all NuGet dependencies to .NET 8.0 compatible versions.",
+      "environmentConfiguration": null,
+      "skills": [{ "name": "dotnet-version-upgrade", "location": "builtin" }],
+      "successCriteria": { "passBuild": "true", "passUnitTests": "true" }
+    },
+    {
+      "id": "002-transform-msmq-to-azure-servicebus",
+      "type": "transform",
+      "description": "Migrate from MSMQ to Azure Service Bus",
+      "requirements": "Replace MSMQ (System.Messaging) usage in NotificationService.cs with Azure Service Bus SDK (Azure.Messaging.ServiceBus). Migrate message queue creation, message sending, and message formatting from System.Messaging.MessageQueue to ServiceBusClient/ServiceBusSender. Use managed identity for authentication. Affected files: Services/NotificationService.cs (12 incidents).",
+      "environmentConfiguration": null,
+      "kbId": "msmq-to-azure-servicebus",
+      "skills": [{ "name": "migration-msmq-to-azure-servicebus", "location": "builtin" }],
+      "successCriteria": { "passBuild": "true", "passUnitTests": "true" }
+    },
+    {
+      "id": "003-transform-windows-auth-to-easyauth",
+      "type": "transform",
+      "description": "Migrate from Windows Authentication to Azure App Service built-in auth (Easy Auth)",
+      "requirements": "Replace Windows Authentication configuration with Azure App Service built-in authentication (Easy Auth). Configure Microsoft Entra ID as the identity provider. Update authentication and authorization middleware in the application. Remove Windows-specific authentication settings from configuration.",
+      "environmentConfiguration": null,
+      "skills": [{ "name": "migration-windows-auth-to-easyauth", "location": "builtin" }],
+      "successCriteria": { "passBuild": "true", "passUnitTests": "true" }
+    },
+    {
+      "id": "004-transform-local-files-to-blob-storage",
+      "type": "transform",
+      "description": "Migrate from local file system to Azure Blob Storage",
+      "requirements": "Replace local file system operations (System.IO.File, System.IO.Directory) in Controllers/CoursesController.cs with Azure Blob Storage SDK (Azure.Storage.Blobs). Migrate file uploads, reads, deletions, and directory operations to use Azure Blob containers. Use managed identity for authentication. Affected files: Controllers/CoursesController.cs (8 incidents across lines 76, 78, 159, 161, 172, 174, 229, 233).",
+      "environmentConfiguration": null,
+      "kbId": "local-file-to-azure-blob-storage",
+      "skills": [{ "name": "migration-local-file-to-azure-blob-storage", "location": "builtin" }],
+      "successCriteria": { "passBuild": "true", "passUnitTests": "true" }
+    },
+    {
+      "id": "005-transform-credentials-to-keyvault",
+      "type": "transform",
+      "description": "Migrate from Plaintext Credentials to Secured Credentials with Managed Identity and Azure KeyVault",
+      "requirements": "Replace plaintext connection strings and app settings with Azure KeyVault references. Configure Managed Identity for secure credential access. Remove hardcoded secrets from configuration. Affected configuration: Web.config appSettings and connectionStrings sections (2 incidents).",
+      "environmentConfiguration": null,
+      "kbId": "plaintext-credential-to-azure-keyvault",
+      "skills": [{ "name": "migration-plaintext-credential-to-azure-keyvault", "location": "builtin" }],
+      "successCriteria": { "passBuild": "true", "passUnitTests": "true" }
+    },
+    {
+      "id": "006-transform-sql-to-azure-sql",
+      "type": "transform",
+      "description": "Migrate from SQL Server to Managed Identity Based Azure SQL",
+      "requirements": "Update database connection from local SQL Server to Azure SQL Database. Configure managed identity-based authentication replacing connection string credentials. Update Entity Framework DbContext connection configuration. Affected configuration: Web.config DefaultConnection (1 incident).",
+      "environmentConfiguration": null,
+      "kbId": "local-sql-server-to-azure-sql-db",
+      "skills": [{ "name": "migration-local-sql-server-to-azure-sql-db", "location": "builtin" }],
+      "successCriteria": { "passBuild": "true", "passUnitTests": "true" }
+    },
+    {
+      "id": "007-transform-static-content-to-blob",
+      "type": "transform",
+      "description": "Migrate static content to Azure Blob Storage",
+      "requirements": "Move static content files (16 files: CSS, JavaScript, images in Content/, Scripts/, Uploads/ directories) to Azure Blob Storage or Azure CDN for scalable serving. Update references in Views/Shared/_Layout.cshtml and other view files to point to the new Blob Storage URLs. Affected files: ContosoUniversity.csproj (1 incident - 16 static files detected).",
+      "environmentConfiguration": null,
+      "kbId": "local-file-to-azure-blob-storage",
+      "skills": [{ "name": "migration-local-file-to-azure-blob-storage", "location": "builtin" }],
+      "successCriteria": { "passBuild": "true", "passUnitTests": "true" }
+    }
+  ],
+  "metadata": {
+    "language": "dotnet",
+    "planName": "contoso-azure-full-migration",
+    "projectName": "ContosoUniversity",
+    "createdAt": "2026-06-16T18:45:00.000Z",
+    "version": "1.0"
+  }
+}

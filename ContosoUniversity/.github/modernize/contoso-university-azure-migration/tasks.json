@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Tasks template for modernization plan. Generate this file alongside plan.md to track individual migration tasks.",
+  "tasks": [
+    {
+      "type": "transform",
+      "id": "001-transform-local-sql-to-azure-sql",
+      "description": "Migrate from SQL Server to Managed Identity Based Azure SQL",
+      "requirements": "Replace the local SQL Server (LocalDB) connection with Azure SQL Database. Use Managed Identity for authentication instead of connection string credentials. Update Entity Framework configuration and connection string handling accordingly.",
+      "environmentConfiguration": null,
+      "kbId": "local-sql-server-to-azure-sql-db",
+      "status": null,
+      "skills": [
+        {
+          "name": "migration-local-sql-server-to-azure-sql-db",
+          "location": "builtin"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "generateNewIntegrationTests": "false",
+        "passUnitTests": "true",
+        "passIntegrationTests": "false",
+        "securityComplianceCheck": "false"
+      }
+    },
+    {
+      "type": "transform",
+      "id": "002-transform-local-file-to-azure-blob",
+      "description": "Migrate from local file system to Azure Blob Storage",
+      "requirements": "Replace local file system storage (Uploads/TeachingMaterials/) with Azure Blob Storage for teaching material uploads. Use Managed Identity for authentication to the storage account.",
+      "environmentConfiguration": null,
+      "kbId": "local-file-to-azure-blob-storage",
+      "status": null,
+      "skills": [
+        {
+          "name": "migration-local-file-to-azure-blob-storage",
+          "location": "builtin"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "generateNewIntegrationTests": "false",
+        "passUnitTests": "true",
+        "passIntegrationTests": "false",
+        "securityComplianceCheck": "false"
+      }
+    },
+    {
+      "type": "transform",
+      "id": "003-transform-msmq-to-azure-servicebus",
+      "description": "Migrate from MSMQ to Azure Service Bus",
+      "requirements": "Replace MSMQ-based notification queuing with Azure Service Bus. The application currently uses MSMQ at queue path '.\\Private$\\ContosoUniversityNotifications' for notification processing. Migrate to Azure Service Bus queues with Managed Identity authentication.",
+      "environmentConfiguration": null,
+      "kbId": "msmq-to-azure-servicebus",
+      "status": null,
+      "skills": [
+        {
+          "name": "migration-msmq-to-azure-servicebus",
+          "location": "builtin"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "generateNewIntegrationTests": "false",
+        "passUnitTests": "true",
+        "passIntegrationTests": "false",
+        "securityComplianceCheck": "false"
+      }
+    },
+    {
+      "type": "transform",
+      "id": "004-transform-plaintext-cred-to-azure-keyvault",
+      "description": "Migrate from Plaintext Credentials to Secured Credentials protected by Managed Identity and Azure KeyVault",
+      "requirements": "Replace plaintext connection strings and credentials in Web.config with Azure Key Vault references. Use Managed Identity to authenticate to Key Vault. Ensure all sensitive configuration values are stored securely.",
+      "environmentConfiguration": null,
+      "kbId": "plaintext-credential-to-azure-keyvault",
+      "status": null,
+      "skills": [
+        {
+          "name": "migration-plaintext-credential-to-azure-keyvault",
+          "location": "builtin"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "generateNewIntegrationTests": "false",
+        "passUnitTests": "true",
+        "passIntegrationTests": "false",
+        "securityComplianceCheck": "false"
+      }
+    },
+    {
+      "type": "transform",
+      "id": "005-transform-file-system-management",
+      "description": "File System Management Migration",
+      "requirements": "Modernize local and network file I/O operations for cloud compatibility. Replace direct file system access patterns with cloud-compatible abstractions.",
+      "environmentConfiguration": null,
+      "kbId": "file-system-management-prompt",
+      "status": null,
+      "skills": [
+        {
+          "name": "migration-file-system-management",
+          "location": "builtin"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "generateNewIntegrationTests": "false",
+        "passUnitTests": "true",
+        "passIntegrationTests": "false",
+        "securityComplianceCheck": "false"
+      }
+    }
+  ],
+  "metadata": {
+    "planName": "ContosoUniversity Azure Migration",
+    "projectName": "ContosoUniversity",
+    "language": "dotnet",
+    "createdAt": "2026-06-16T18:30:00Z",
+    "version": "1.0"
+  }
+}
