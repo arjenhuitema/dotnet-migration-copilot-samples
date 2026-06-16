@@ -5,8 +5,18 @@ using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 using Azure.Storage.Blobs;
 using Azure.Identity;
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Integrate Azure Key Vault into configuration using Managed Identity (DefaultAzureCredential)
+var keyVaultName = builder.Configuration["KeyVaultName"];
+if (!string.IsNullOrEmpty(keyVaultName))
+{
+    builder.Configuration.AddAzureKeyVault(
+        new Uri($"https://{keyVaultName}.vault.azure.net/"),
+        new DefaultAzureCredential());
+}
 
 // Add Microsoft Entra ID (Easy Auth) authentication
 builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration);
