@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ContosoUniversity.Data;
@@ -7,6 +8,7 @@ using ContosoUniversity.Services;
 
 namespace ContosoUniversity.Controllers
 {
+    [Authorize]
     public class InstructorsController : BaseController
     {
         public InstructorsController(SchoolContext context, NotificationService notificationService)

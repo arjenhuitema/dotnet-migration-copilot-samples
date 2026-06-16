@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using ContosoUniversity.Services;
 
 namespace ContosoUniversity.Controllers
 {
+    [Authorize]
     public class CoursesController : BaseController
     {
         private readonly IWebHostEnvironment _env;
