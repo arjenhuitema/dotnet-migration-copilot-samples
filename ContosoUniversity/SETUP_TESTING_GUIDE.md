@@ -29,10 +29,10 @@
 1. Press F5 to start debugging
 2. The application will launch in your default browser
 
-### Step 2: Login as Administrator
-1. The application uses Windows Authentication
-2. Ensure your Windows user is in the administrator role
-3. You should see "Administrator" label next to your username
+### Step 2: Sign In with Microsoft Entra ID
+1. The application uses Azure App Service built-in authentication (Easy Auth) with Microsoft Entra ID
+2. Click "Sign in" in the top navigation and authenticate with your Microsoft Entra ID account
+3. You should see your account name in the navigation bar after signing in
 
 ### Step 3: Access Notification Dashboard
 1. Click "Notifications" in the main navigation menu
