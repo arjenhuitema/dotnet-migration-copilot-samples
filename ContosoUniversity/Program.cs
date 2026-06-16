@@ -6,8 +6,18 @@ using Microsoft.Identity.Web.UI;
 using Azure.Storage.Blobs;
 using Azure.Identity;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Honor X-Forwarded-* headers from the App Service reverse proxy so OIDC
+// redirect URIs are generated with the correct https scheme and host.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 // Integrate Azure Key Vault into configuration using Managed Identity (DefaultAzureCredential)
 var keyVaultName = builder.Configuration["KeyVaultName"];
@@ -51,6 +61,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseForwardedHeaders();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
