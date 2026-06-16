@@ -3,6 +3,8 @@ using ContosoUniversity.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
+using Azure.Storage.Blobs;
+using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +23,14 @@ builder.Services.AddDbContext<SchoolContext>(options =>
 
 // Register application services
 builder.Services.AddSingleton<NotificationService>();
+
+// Register BlobServiceClient as Singleton using DefaultAzureCredential (Managed Identity)
+builder.Services.AddSingleton(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var serviceUri = new Uri(configuration["Storage:ServiceUri"]!);
+    return new BlobServiceClient(serviceUri, new DefaultAzureCredential());
+});
 
 var app = builder.Build();
 
