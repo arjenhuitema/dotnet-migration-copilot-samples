@@ -1,18 +1,30 @@
-using System.Collections.Concurrent;
+using Azure.Identity;
+using Azure.Messaging.ServiceBus;
 using ContosoUniversity.Models;
 using Microsoft.Extensions.Configuration;
+using System.Text.Json;
 
 namespace ContosoUniversity.Services
 {
     public class NotificationService : IDisposable
     {
-        private readonly string _queuePath;
-        private readonly ConcurrentQueue<Notification> _queue = new();
+        private readonly ServiceBusClient _serviceBusClient;
+        private readonly ServiceBusSender _sender;
+        private readonly ServiceBusReceiver _receiver;
+        private bool _disposed;
 
         public NotificationService(IConfiguration configuration)
         {
-            _queuePath = configuration["AppSettings:NotificationQueuePath"]
-                ?? @".\Private$\ContosoUniversityNotifications";
+            var fullyQualifiedNamespace = configuration["ServiceBus:FullyQualifiedNamespace"]
+                ?? throw new InvalidOperationException("ServiceBus:FullyQualifiedNamespace is not configured.");
+
+            var queueName = configuration["ServiceBus:QueueName"]
+                ?? throw new InvalidOperationException("ServiceBus:QueueName is not configured.");
+
+            var credential = new DefaultAzureCredential();
+            _serviceBusClient = new ServiceBusClient(fullyQualifiedNamespace, credential);
+            _sender = _serviceBusClient.CreateSender(queueName);
+            _receiver = _serviceBusClient.CreateReceiver(queueName);
         }
 
         public void SendNotification(string entityType, string entityId, EntityOperation operation, string? userName = null)
@@ -30,12 +42,19 @@ namespace ContosoUniversity.Services
                     EntityId = entityId,
                     Operation = operation.ToString(),
                     Message = GenerateMessage(entityType, entityId, entityDisplayName, operation),
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = DateTime.UtcNow,
                     CreatedBy = userName ?? "System",
                     IsRead = false
                 };
 
-                _queue.Enqueue(notification);
+                var messageBody = JsonSerializer.Serialize(notification);
+                var message = new ServiceBusMessage(messageBody)
+                {
+                    ContentType = "application/json",
+                    Subject = $"{entityType}.{operation}"
+                };
+
+                _sender.SendMessageAsync(message).GetAwaiter().GetResult();
             }
             catch (Exception ex)
             {
@@ -45,14 +64,29 @@ namespace ContosoUniversity.Services
 
         public Notification? ReceiveNotification()
         {
-            _queue.TryDequeue(out var notification);
-            return notification;
+            try
+            {
+                var message = _receiver.ReceiveMessageAsync(maxWaitTime: TimeSpan.FromMilliseconds(500))
+                    .GetAwaiter().GetResult();
+
+                if (message == null)
+                    return null;
+
+                var notification = JsonSerializer.Deserialize<Notification>(message.Body.ToString());
+                _receiver.CompleteMessageAsync(message).GetAwaiter().GetResult();
+                return notification;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to receive notification: {ex.Message}");
+                return null;
+            }
         }
 
         public void MarkAsRead(int notificationId)
         {
-            // In a real implementation, notifications would be stored in a database
-            // for persistence and tracking read status
+            // Message completion (settlement) is handled during ReceiveNotification via CompleteMessageAsync.
+            // Tracking read status per notification ID would require a separate data store.
         }
 
         private static string GenerateMessage(string entityType, string entityId, string? entityDisplayName, EntityOperation operation)
@@ -72,7 +106,13 @@ namespace ContosoUniversity.Services
 
         public void Dispose()
         {
-            // Nothing to dispose for in-memory queue
+            if (!_disposed)
+            {
+                _sender.DisposeAsync().AsTask().GetAwaiter().GetResult();
+                _receiver.DisposeAsync().AsTask().GetAwaiter().GetResult();
+                _serviceBusClient.DisposeAsync().AsTask().GetAwaiter().GetResult();
+                _disposed = true;
+            }
             GC.SuppressFinalize(this);
         }
     }

@@ -2,20 +2,20 @@
 
 ## Prerequisites
 
-1. **Enable MSMQ on Windows**:
-   - Open "Turn Windows features on or off" (search for "Windows Features")
-   - Navigate to "Microsoft Message Queue (MSMQ) Server"
-   - Expand "Microsoft Message Queue (MSMQ) Server"
-   - Check the following components:
-     - ✅ **Microsoft Message Queue (MSMQ) Server Core** (required)
-     - ❌ **MSMQ Active Directory Domain Services Integration** (not needed for private queues)
-     - ❌ **MSMQ HTTP Support** (not needed for local queues)
-   - Click OK and restart if prompted
+1. **Azure Service Bus Namespace**:
+   - Create an Azure Service Bus namespace (Standard or Premium tier) in the Azure portal
+   - Create a queue named `contoso-university-notifications`
+   - Assign the `Azure Service Bus Data Owner` role to your identity (user or managed identity) on the namespace
 
-2. **Verify MSMQ Installation**:
-   - Open Computer Management (compmgmt.msc)
-   - Navigate to "Services and Applications" → "Message Queuing"
-   - You should see "Private Queues" folder
+2. **Configure the Application**:
+   - Update `appsettings.json` with your Service Bus namespace FQDN and queue name:
+     ```json
+     "ServiceBus": {
+       "FullyQualifiedNamespace": "<your-namespace>.servicebus.windows.net",
+       "QueueName": "contoso-university-notifications"
+     }
+     ```
+   - When running locally, authenticate via Azure CLI (`az login`) or set up environment credentials for `DefaultAzureCredential`
 
 ## Building the Project
 
@@ -58,34 +58,30 @@
    - Repeat the same process for Courses, Instructors, and Departments
    - Each operation should trigger appropriate notifications
 
-### Step 5: Verify MSMQ Queue
-1. Open Computer Management (compmgmt.msc)
-2. Navigate to "Message Queuing" → "Private Queues"
-3. You should see "contosouniversitynotifications" queue
-4. Check queue properties to see message statistics
+### Step 5: Verify Azure Service Bus Queue
+1. Open the Azure portal and navigate to your Service Bus namespace
+2. Click on the `contoso-university-notifications` queue
+3. Review the **Active Message Count** to verify messages are being sent and consumed
 
 ## Troubleshooting
 
 ### No Notifications Appearing
 1. **Check Browser Console**: Press F12 and look for JavaScript errors
 2. **Check Network Tab**: Verify calls to `/Notifications/GetNotifications` are happening
-3. **Check MSMQ**: Verify the queue exists and has messages
+3. **Check Azure Service Bus**: Verify the queue exists and the application identity has the `Azure Service Bus Data Owner` role
 
-### MSMQ Errors
-1. **Queue Access Denied**: 
-   - Right-click the queue → Properties → Security
-   - Add your user with Full Control permissions
+### Azure Service Bus Errors
+1. **Authentication Failure**:
+   - Ensure your identity (local: logged-in Azure CLI user; deployed: managed identity) has the `Azure Service Bus Data Owner` role on the namespace
+   - Run `az login` locally to refresh credentials
 
-2. **Queue Not Created**:
-   - Ensure MSMQ is properly installed with the correct components
-   - Check application pool identity has permissions
-   - Verify only **MSMQ Server Core** is needed (not Active Directory or HTTP support)
+2. **Queue Not Found**:
+   - Verify the queue name in `appsettings.json` matches the queue created in Azure portal
+   - Check the `FullyQualifiedNamespace` value ends with `.servicebus.windows.net`
 
-3. **MSMQ Installation Issues**:
-   - **Windows 10/11 Home**: MSMQ is not available on Home editions - upgrade to Pro/Enterprise
-   - **Missing MSMQ Service**: After installation, verify "Message Queuing" service is running
-   - **Permission Errors**: Run Visual Studio as Administrator during development
-   - **Queue Path Issues**: The system uses private queues (.\Private$\) which don't require domain integration
+3. **Connection Issues**:
+   - Verify network connectivity to the Azure Service Bus namespace
+   - Check that firewall rules allow outbound traffic on port 443 (AMQP over WebSockets) or 5671 (AMQP)
 
 ### JavaScript Not Loading
 1. **Admin Role Check**: Ensure you're logged in as administrator
@@ -94,7 +90,9 @@
 
 ## Configuration Notes
 
-- **Queue Path**: Configured in Web.config as `.\Private$\ContosoUniversityNotifications`
+- **Namespace**: Configured in `appsettings.json` as `ServiceBus:FullyQualifiedNamespace`
+- **Queue Name**: Configured in `appsettings.json` as `ServiceBus:QueueName`
+- **Authentication**: Uses `DefaultAzureCredential` (Managed Identity in production, Azure CLI locally)
 - **Polling Interval**: JavaScript checks for new notifications every 5 seconds
 - **Auto-dismiss**: Notifications automatically disappear after 1 minute (60 seconds)
 - **Max Notifications**: Maximum of 5 notifications shown simultaneously
@@ -103,15 +101,15 @@
 
 For production deployment:
 
-1. **MSMQ Setup**: Ensure MSMQ is installed on production servers
-2. **Permissions**: Configure appropriate queue permissions for the application pool identity
-3. **Monitoring**: Monitor queue length and message processing
-4. **Backup**: Consider MSMQ backup strategies for message persistence
-5. **Load Balancing**: For multiple servers, consider centralized MSMQ server
+1. **Azure Service Bus**: Provision a Standard or Premium tier namespace with the notification queue
+2. **Managed Identity**: Assign the `Azure Service Bus Data Owner` role to the app's managed identity
+3. **Monitoring**: Monitor queue length and dead-letter queue in Azure Monitor
+4. **Geo-Redundancy**: Use Premium tier with geo-disaster recovery for high availability
+5. **Load Balancing**: Azure Service Bus natively supports multiple consumers across scaled-out instances
 
 ## Development Tips
 
-- Notifications are designed to be non-blocking - MSMQ failures won't break main operations
+- Notifications are designed to be non-blocking - Azure Service Bus failures won't break main operations
 - Debug output shows notification send/receive operations
 - Use notification dashboard to understand system behavior
 - Test with multiple admin users to verify isolation
