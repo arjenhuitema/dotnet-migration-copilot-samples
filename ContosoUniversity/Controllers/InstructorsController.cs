@@ -133,7 +133,7 @@ namespace ContosoUniversity.Controllers
         // POST: Instructors/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int? id, string[]? selectedCourses)
+        public async Task<IActionResult> Edit(int? id, string[]? selectedCourses)
         {
             if (id == null)
             {
@@ -151,8 +151,8 @@ namespace ContosoUniversity.Controllers
                 return NotFound();
             }
 
-            if (TryUpdateModelAsync(instructorToUpdate, "",
-               i => i.LastName, i => i.FirstMidName, i => i.HireDate, i => i.OfficeAssignment).Result)
+            if (await TryUpdateModelAsync(instructorToUpdate, "",
+               i => i.LastName, i => i.FirstMidName, i => i.HireDate, i => i.OfficeAssignment))
             {
                 try
                 {

@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using ContosoUniversity.Models;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 
 namespace ContosoUniversity.Services
 {
