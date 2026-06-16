@@ -28,11 +28,11 @@ ContosoUniversity/
 
 ## Database Configuration
 
-The application uses SQL Server LocalDB with the following connection string in `Web.config`:
-```xml
-  <connectionStrings>
-    <add name="DefaultConnection" connectionString="Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=ContosoUniversityNoAuthEFCore;Integrated Security=True;MultipleActiveResultSets=True" />
-  </connectionStrings>
+The application uses Azure SQL Database with Managed Identity authentication. Configure the connection string in `appsettings.json`:
+```json
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=tcp:<server-name>.database.windows.net;Database=<database-name>;Authentication=Active Directory Default;TrustServerCertificate=True"
+  }
 ```
 
 ## Running the Application
@@ -40,7 +40,7 @@ The application uses SQL Server LocalDB with the following connection string in 
 1. **Prerequisites**:
    - Visual Studio 2019 or later
    - IIS Express
-   - SQL Server LocalDB
+   - Azure SQL Database with Managed Identity
    - Azure Service Bus namespace (Standard or Premium tier) with `contoso-university-notifications` queue
 
 2. **Setup**:
